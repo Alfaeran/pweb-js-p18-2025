@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Collection</title>
+    <link rel="stylesheet" href="reciept.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1>Recipe Collection</h1>
+            <div class="nav-right">
+                <span id="welcomeUser">Welcome, Emily!</span>
+                <button id="logoutBtn" class="btn-logout">LOGOUT</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="hero-section">
+            <h2>Your Recipe Collection</h2>
+            <p>Discover and manage your favorite recipes</p>
+        </div>
+
+        <div class="filter-section">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Search recipe..."
+                >
+                <button class="search-btn">🔍</button>
+            </div>
+
+            <select id="cuisineFilter" class="cuisine-filter">
+                <option value="">All Cuisines</option>
+            </select>
+
+            <div class="results-count">
+                <span id="resultsCount">Showing 0 of 30 recipes</span>
+            </div>
+        </div>
+
+        <div id="loadingContainer" class="loading-container" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading recipes...</p>
+        </div>
+
+        <div id="errorContainer" class="error-container" style="display: none;"></div>
+
+        <div id="recipesGrid" class="recipes-grid"></div>
+
+        <div id="showMoreContainer" class="show-more-container" style="display: none;">
+            <button id="showMoreBtn" class="btn-show-more">Show More</button>
+        </div>
+    </main>
+
+    <div id="recipeModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+</body>
+</html>

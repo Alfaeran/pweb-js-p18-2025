@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h1>Login Page</h1>
+            <p class="notes">Notes: use credentials from DummyJSON</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">USERNAME</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="emilys"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">PASSWORD</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="••••••••••"
+                        required
+                    >
+                </div>
+                
+                <button type="submit" id="loginBtn" class="btn-login">
+                    SIGN IN
+                </button>
+                
+                <div id="loadingState" class="loading-state" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Processing login...</p>
+                </div>
+                
+                <div id="messageBox" class="message-box" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="api.js"></script>
+</body>
+</html>
