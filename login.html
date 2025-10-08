@@ -12,6 +12,7 @@
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-solid-rounded/css/uicons-solid-rounded.css'>
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme"><i class="fi fi-rr-moon"></i></button>
     <div class="container">
         <div class="login-box">
             <h1>
@@ -52,6 +53,14 @@
                     >
                 </div>
                 
+                <div class="extras">
+                    <label class="remember">
+                        <input type="checkbox" id="rememberMe">
+                        Save login
+                    </label>
+                    <a href="#" id="forgotLink" class="forgot-link">Forgot password?</a>
+                </div>
+                
                 <button type="submit" id="loginBtn" class="btn-login">
                     <i class="fi fi-rr-sign-in-alt"></i>
                     SIGN IN
@@ -67,6 +76,19 @@
                 
                 <div id="messageBox" class="message-box" style="display: none;"></div>
             </form>
+        </div>
+    </div>
+
+    <div id="forgotModal" class="modal" aria-hidden="true">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="forgotTitle">
+            <button class="modal-close" id="forgotClose" aria-label="Close">&times;</button>
+            <h3 id="forgotTitle">Reset your password</h3>
+            <p class="modal-note">Enter your email and we'll send a recovery link (demo).</p>
+            <input type="email" id="forgotEmail" placeholder="you@example.com">
+            <div class="modal-actions">
+                <button id="sendResetBtn" class="btn-login">Send</button>
+            </div>
+            <div id="forgotMessage" class="message-box" style="display:none; margin-top:12px;"></div>
         </div>
     </div>
     
