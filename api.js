@@ -4,11 +4,19 @@ const isReceiptPage = window.location.pathname.includes('reciept.html');
 if (isLoginPage) {
     document.addEventListener('DOMContentLoaded', function() {
         const loginForm = document.getElementById('loginForm');
+        const themeToggleBtn = document.getElementById('themeToggle');
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
         const loginBtn = document.getElementById('loginBtn');
         const loadingState = document.getElementById('loadingState');
         const messageBox = document.getElementById('messageBox');
+        const rememberCheckbox = document.getElementById('rememberMe');
+        const forgotLink = document.getElementById('forgotLink');
+        const forgotModal = document.getElementById('forgotModal');
+        const forgotClose = document.getElementById('forgotClose');
+        const sendResetBtn = document.getElementById('sendResetBtn');
+        const forgotEmail = document.getElementById('forgotEmail');
+        const forgotMessage = document.getElementById('forgotMessage');
 
         function showMessage(message, type) {
             messageBox.textContent = message;
@@ -78,6 +86,11 @@ if (isLoginPage) {
                 localStorage.setItem('firstName', user.firstName);
                 localStorage.setItem('userId', user.id);
                 localStorage.setItem('isLoggedIn', 'true');
+                if (rememberCheckbox && rememberCheckbox.checked) {
+                    localStorage.setItem('rememberUsername', username);
+                } else {
+                    localStorage.removeItem('rememberUsername');
+                }
                 window.location.href = 'reciept.html';
             } catch (error) {
                 hideLoading();
@@ -87,6 +100,81 @@ if (isLoginPage) {
 
         usernameInput.addEventListener('input', hideMessage);
         passwordInput.addEventListener('input', hideMessage);
+
+        const remembered = localStorage.getItem('rememberUsername');
+        if (remembered) {
+            usernameInput.value = remembered;
+            if (rememberCheckbox) rememberCheckbox.checked = true;
+        }
+
+        function openForgot() {
+            if (!forgotModal) return;
+            forgotModal.setAttribute('aria-hidden', 'false');
+            forgotModal.style.display = 'flex';
+            forgotEmail.focus();
+        }
+        
+        function closeForgot() {
+            if (!forgotModal) return;
+            forgotModal.setAttribute('aria-hidden', 'true');
+            forgotModal.style.display = 'none';
+            forgotMessage.style.display = 'none';
+            forgotMessage.textContent = '';
+            forgotEmail.value = '';
+        }
+        
+        if (forgotLink) {
+            forgotLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                openForgot();
+            });
+        }
+        
+        if (forgotClose) forgotClose.addEventListener('click', closeForgot);
+
+        if (forgotModal) {
+            forgotModal.addEventListener('click', function(e) {
+                if (e.target === forgotModal) closeForgot();
+            });
+        }
+        
+        if (sendResetBtn) {
+            sendResetBtn.addEventListener('click', function() {
+                const email = forgotEmail.value.trim();
+                if (!email) {
+                    forgotMessage.style.display = 'block';
+                    forgotMessage.textContent = 'Please enter a valid email address';
+                    forgotMessage.className = 'message-box error';
+                    return;
+                }
+                
+                forgotMessage.style.display = 'block';
+                forgotMessage.textContent = 'If this email exists in our system, a reset link was sent (demo).';
+                forgotMessage.className = 'message-box success';
+                setTimeout(closeForgot, 2200);
+            });
+        }
+
+        function initThemeLogin() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fi fi-sr-sun"></i>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fi fi-rr-moon"></i>';
+            }
+        }
+        
+        function toggleThemeLogin() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            if (themeToggleBtn) themeToggleBtn.innerHTML = isDark ? '<i class="fi fi-sr-sun"></i>' : '<i class="fi fi-rr-moon"></i>';
+        }
+        
+        if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleThemeLogin);
+        initThemeLogin();
     });
 }
 
