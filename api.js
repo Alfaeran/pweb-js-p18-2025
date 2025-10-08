@@ -94,6 +94,7 @@ if (isReceiptPage) {
     document.addEventListener('DOMContentLoaded', function() {
         const welcomeUser = document.getElementById('welcomeUser');
         const logoutBtn = document.getElementById('logoutBtn');
+        const themeToggle = document.getElementById('themeToggle');
         const searchInput = document.getElementById('searchInput');
         const cuisineFilter = document.getElementById('cuisineFilter');
         const recipesGrid = document.getElementById('recipesGrid');
@@ -105,10 +106,102 @@ if (isReceiptPage) {
         const recipeModal = document.getElementById('recipeModal');
         const closeModal = document.querySelector('.close');
 
+        // Check if themeToggle button exists
+        if (!themeToggle) {
+            console.error('Theme toggle button not found!');
+            return;
+        }
+        console.log('Theme toggle button found:', themeToggle);
+
         let allRecipes = [];
         let filteredRecipes = [];
         let displayedCount = 6;
         let searchTimeout;
+
+        // Dark mode functionality - simplified and more robust
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            console.log('Initializing theme:', savedTheme);
+            
+            const body = document.body;
+            const toggle = document.getElementById('themeToggle');
+            
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-mode');
+                if (toggle) toggle.innerHTML = '<i class="fi fi-sr-sun"></i>';
+            } else {
+                body.classList.remove('dark-mode');
+                if (toggle) toggle.innerHTML = '<i class="fi fi-rr-moon"></i>';
+            }
+            
+            console.log('Body classes after init:', body.className);
+        }
+
+        function toggleTheme() {
+            console.log('Theme toggle function called');
+            const body = document.body;
+            const toggle = document.getElementById('themeToggle');
+            
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            console.log('Is dark mode:', isDark);
+            
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            if (toggle) {
+                toggle.innerHTML = isDark ? '<i class="fi fi-sr-sun"></i>' : '<i class="fi fi-rr-moon"></i>';
+            }
+            console.log('Theme saved to localStorage:', localStorage.getItem('theme'));
+            
+            // Update debug info
+            updateDebugInfo();
+        }
+
+        function updateDebugInfo() {
+            const debugInfo = document.getElementById('debugInfo');
+            const currentTheme = document.getElementById('currentTheme');
+            const bodyClasses = document.getElementById('bodyClasses');
+            
+            if (currentTheme) currentTheme.textContent = localStorage.getItem('theme') || 'light';
+            if (bodyClasses) bodyClasses.textContent = document.body.className || 'none';
+        }
+
+        // Make functions globally accessible for debugging
+        window.toggleTheme = toggleTheme;
+        window.updateDebugInfo = updateDebugInfo;
+
+        // Add event listener to theme toggle
+        if (themeToggle) {
+            themeToggle.addEventListener('click', toggleTheme);
+            console.log('Event listener added to theme toggle');
+        } else {
+            console.error('Theme toggle button not found!');
+        }
+
+        initTheme();
+        
+        // Show debug info initially
+        const debugInfo = document.getElementById('debugInfo');
+        if (debugInfo) {
+            debugInfo.style.display = 'block';
+            updateDebugInfo();
+        }
+
+        // Also add a backup event listener using direct element access
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('#themeToggle')) {
+                console.log('Backup theme toggle clicked');
+                toggleTheme();
+            }
+        });
+
+        // Add keyboard shortcut for testing (Ctrl+D)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+                console.log('Keyboard shortcut triggered');
+                toggleTheme();
+            }
+        });
 
         function checkAuth() {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
@@ -212,7 +305,21 @@ if (isReceiptPage) {
             const card = document.createElement('div');
             card.className = 'recipe-card';
 
-            const stars = '⭐'.repeat(Math.round(recipe.rating));
+            // Generate star rating using Flaticon icons
+            const fullStars = Math.floor(recipe.rating);
+            const hasHalfStar = recipe.rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let starsHtml = '';
+            for (let i = 0; i < fullStars; i++) {
+                starsHtml += '<i class="fi fi-sr-star star-filled"></i>';
+            }
+            if (hasHalfStar) {
+                starsHtml += '<i class="fi fi-rr-star-half-stroke star-half"></i>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                starsHtml += '<i class="fi fi-rr-star star-empty"></i>';
+            }
 
             const ingredientsList = recipe.ingredients.slice(0, 3).join(', ') + 
                 (recipe.ingredients.length > 3 ? '...' : '');
@@ -220,24 +327,30 @@ if (isReceiptPage) {
             card.innerHTML = `
                 <img src="${recipe.image}" alt="${recipe.name}" class="recipe-image" onerror="this.src='https://via.placeholder.com/280x200?text=No+Image'">
                 <div class="recipe-content">
-                    <h3 class="recipe-title">${recipe.name}</h3>
+                    <h3 class="recipe-title">
+                        <i class="fi fi-rr-utensils"></i>
+                        ${recipe.name}
+                    </h3>
                     <div class="recipe-meta">
-                        <span>⏱️ ${recipe.prepTimeMinutes} mins</span>
-                        <span>🔥 ${recipe.difficulty}</span>
-                        <span>🌍 ${recipe.cuisine}</span>
+                        <span><i class="fi fi-rr-clock"></i> ${recipe.prepTimeMinutes} mins</span>
+                        <span><i class="fi fi-rr-flame"></i> ${recipe.difficulty}</span>
+                        <span><i class="fi fi-rr-world"></i> ${recipe.cuisine}</span>
                     </div>
                     <div class="recipe-rating">
-                        <span class="stars">${stars}</span>
-                        <span>(${recipe.rating})</span>
+                        <span class="stars-container">${starsHtml}</span>
+                        <span class="rating-text">(${recipe.rating})</span>
                     </div>
                     <div class="recipe-tags">
-                        ${recipe.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        ${recipe.tags.map(tag => `<span class="tag"><i class="fi fi-rr-hashtag"></i>${tag}</span>`).join('')}
                     </div>
                     <div class="recipe-ingredients">
-                        <h4>Ingredients</h4>
+                        <h4><i class="fi fi-rr-list-check"></i> Ingredients</h4>
                         <div class="ingredients-list">${ingredientsList}</div>
                     </div>
-                    <button class="btn-view-recipe" data-id="${recipe.id}">VIEW FULL RECIPE</button>
+                    <button class="btn-view-recipe" data-id="${recipe.id}">
+                        <i class="fi fi-rr-eye"></i>
+                        VIEW FULL RECIPE
+                    </button>
                 </div>
             `;
 
@@ -249,32 +362,49 @@ if (isReceiptPage) {
         }
 
         function showRecipeDetail(recipe) {
-            const stars = '⭐'.repeat(Math.round(recipe.rating));
+            // Generate star rating using Flaticon icons
+            const fullStars = Math.floor(recipe.rating);
+            const hasHalfStar = recipe.rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let starsHtml = '';
+            for (let i = 0; i < fullStars; i++) {
+                starsHtml += '<i class="fi fi-sr-star star-filled"></i>';
+            }
+            if (hasHalfStar) {
+                starsHtml += '<i class="fi fi-rr-star-half-stroke star-half"></i>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                starsHtml += '<i class="fi fi-rr-star star-empty"></i>';
+            }
             
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
                 <img src="${recipe.image}" alt="${recipe.name}" class="modal-recipe-image" onerror="this.src='https://via.placeholder.com/800x350?text=No+Image'">
-                <h2 class="modal-recipe-title">${recipe.name}</h2>
+                <h2 class="modal-recipe-title">
+                    <i class="fi fi-rr-chef-hat"></i>
+                    ${recipe.name}
+                </h2>
                 <div class="modal-recipe-meta">
-                    <span>⏱️ Prep: ${recipe.prepTimeMinutes} mins</span>
-                    <span>🍳 Cook: ${recipe.cookTimeMinutes} mins</span>
-                    <span>🍽️ Servings: ${recipe.servings}</span>
-                    <span>🔥 Difficulty: ${recipe.difficulty}</span>
-                    <span>🌍 Cuisine: ${recipe.cuisine}</span>
-                    <span>⭐ Rating: ${recipe.rating}</span>
-                    <span>📊 Calories: ${recipe.caloriesPerServing}/serving</span>
+                    <span><i class="fi fi-rr-clock"></i> Prep: ${recipe.prepTimeMinutes} mins</span>
+                    <span><i class="fi fi-rr-pot"></i> Cook: ${recipe.cookTimeMinutes} mins</span>
+                    <span><i class="fi fi-rr-users"></i> Servings: ${recipe.servings}</span>
+                    <span><i class="fi fi-rr-flame"></i> Difficulty: ${recipe.difficulty}</span>
+                    <span><i class="fi fi-rr-world"></i> Cuisine: ${recipe.cuisine}</span>
+                    <span><i class="fi fi-rr-star"></i> Rating: <span class="stars-container">${starsHtml}</span> (${recipe.rating})</span>
+                    <span><i class="fi fi-rr-chart-histogram"></i> Calories: ${recipe.caloriesPerServing}/serving</span>
                 </div>
                 <div class="recipe-tags">
-                    ${recipe.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    ${recipe.tags.map(tag => `<span class="tag"><i class="fi fi-rr-hashtag"></i>${tag}</span>`).join('')}
                 </div>
                 <div class="modal-section">
-                    <h3>Ingredients</h3>
+                    <h3><i class="fi fi-rr-shopping-cart"></i> Ingredients</h3>
                     <ul>
-                        ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join('')}
+                        ${recipe.ingredients.map(ing => `<li><i class="fi fi-rr-check"></i>${ing}</li>`).join('')}
                     </ul>
                 </div>
                 <div class="modal-section">
-                    <h3>Instructions</h3>
+                    <h3><i class="fi fi-rr-list"></i> Instructions</h3>
                     <ol>
                         ${recipe.instructions.map(inst => `<li>${inst}</li>`).join('')}
                     </ol>
